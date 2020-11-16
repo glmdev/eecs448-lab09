@@ -1,0 +1,91 @@
+<?php
+
+include_once '../configuration.php';
+
+$products = require_system('exercise3/products.php');
+
+$page = new CommonPage();
+
+$page->title('Exercise 3 - EECS 448 Lab 09')
+    ->header('EECS 448 Store')
+    ->script(system_url('exercise3/formChecker.js'))
+    ->stylesheet(system_url('exercise3/style.css'));
+
+$page->table(function() use($page, $products) {
+    $page->table_row_cell(function() use($page) {
+        $page->writes('<h2>Products</h2>');
+    }, sizeof($products))
+    ->table_row(function() use($page, $products) {
+
+        foreach ( $products as $product ) {
+            $page->table_cell(function() use($page, $product) {
+                $page->writes('<b>' . $product['name'] . '</b>')
+                    ->line_break()
+                    ->writes('Price: $' . $product['price'])
+                    ->line_break()
+                    ->div(function() use($page, $product) {
+                        $page->writes($product['description']);
+                    });
+            });
+        }
+    });
+});
+
+$page->line_break();
+
+$page->form(system_url('exercise3/customerBackend.php'), function() use($page, $products) {
+    $page->table(function() use($page, $products) {
+        $page->table_row_cell(function() use($page) {
+            $page->writes('<h3>My Cart</h3>');
+        }, 2)
+        ->table_row(function() use($page) {
+            $page->table_cell(function() use($page) {
+                $page->writes('<b>Product</b>');
+            })->table_cell(function() use($page) {
+                $page->writes('<b>Quantity</b>');
+            });
+        });
+    
+        foreach ( $products as $product ) {
+            $page->table_row(function() use($page, $product) {
+                $page->table_cell(function() use($page, $product) {
+                    $page->writes($product['name'] . ' @ $' . $product['price']);
+                })->table_cell(function() use($page, $product) {
+                    $page->writes('<input type="number" class="product-input" name="product-qty-' . $product['id'] . '" required/>');
+                });
+            });
+        }
+
+        $page->table_row(function() use($page) {
+            $page->table_cell()
+                ->table_cell(function() use($page) {
+                    $page->writes('<b>Shipping type:</b>')->line_break()->line_break();
+                    $page->writes('<input id="shipping-free" type="radio" name="shipping-type" value="free">');
+                    $page->writes('<label for="shipping-free">7 Days (free)</label>')->line_break();
+                    $page->writes('<input id="shipping-three" type="radio" name="shipping-type" value="medium">');
+                    $page->writes('<label for="shipping-three">3 Days ($5.00)</label>')->line_break();
+                    $page->writes('<input id="shipping-night" type="radio" name="shipping-type" value="overnight">');
+                    $page->writes('<label for="shipping-night">Over-Night ($50.00)</label>')->line_break()->line_break();
+                });
+        });
+
+        $page->table_row(function() use($page) {
+            $page->table_cell()
+                ->table_cell(function() use($page) {
+                    $page->writes('<b>Login credentials:</b>')->line_break()->line_break();
+                    $page->writes('<input id="username-input" name="email" type="email" required placeholder="E-mail"/>')->line_break();
+                    $page->writes('<input id="password-input" name="password" type="password" required placeholder="Password"/>');
+                });
+        });
+
+        $page->table_row(function() use($page) {
+            $page->table_cell()
+                ->table_cell(function() use($page) {
+                    $page->writes('<button type="button" id="form-reset-button">Reset</button>');
+                    $page->writes('<button type="button" id="form-submit-button">Place Order</button>');
+                });
+        });
+    });
+});
+
+$page->write();

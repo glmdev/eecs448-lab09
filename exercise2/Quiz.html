@@ -1,0 +1,30 @@
+<?php
+
+include_once '../configuration.php';
+
+$page = new CommonPage();
+$page->title('Exercise 2 - EECS 448 Lab 09')
+    ->header()
+    ->form(system_url('exercise2/Quiz.php'), function() use($page) {
+        $questions = require_system('exercise2/questions.php');
+
+        foreach ( $questions as $q_idx => $question ) {
+            $page->div(function() use($question, $page, $q_idx) {
+                $page->writes($question['question']);
+
+                $page->div(function() use($question, $page, $q_idx) {
+                    foreach ( $question['answers'] as $a_idx => $answer ) {
+                        $id = 'question-' . $q_idx . '-answer-' . $a_idx;
+
+                        $page->writes('<input required type="radio" name="question-' . $q_idx . '" id="' . $id . '" value="' . $answer['display'] . '"/>');
+                        $page->writes('<label for="' . $id . '">' . $answer['display'] . '</label>');
+                        $page->line_break();
+                    }
+                });
+            });
+        }
+
+        $page->line_break();
+        $page->submit('Submit quiz');
+    })
+    ->write();
